@@ -4,7 +4,12 @@ This is a stripped down version of what [@maheshmurthy](https://github.com/mahes
 wrote on this medium article:
 https://medium.com/@mvmurthy/full-stack-hello-world-voting-ethereum-dapp-tutorial-part-1-40d2d0d807c2
 
-## How to run a smart contract on a test blockchain
+### Table of Contens
+* [creating a smart contract](https://github.com/diogofgr/dapp/blob/master/README.md#creating-a-smart-contract)
+* [testing locally](https://github.com/diogofgr/dapp/blob/master/README.md#testing-locally)
+* [deploying to the ethereum testnet](https://github.com/diogofgr/dapp/blob/master/README.md#deploying-to-the-ethereum-testnet)
+
+## Creating a Smart Contract
 
 ### 1. make a folder for you new app and _start a node project_:
 ```
@@ -12,13 +17,7 @@ $ mkdir dApp
 $ npm init
 ```
 
-### 2. _install web3js_ (this specific version) _and the Solidity compiler_:
-```
-$ npm install ethereumjs-testrpc web3@0.20.1
-$ npm install solc
-```
-
-### 3. _create a smart contract_ ` Voting.sol ` and copy this code into it:
+### 2. _create a smart contract_ ` Voting.sol ` and copy this code into it:
 ```
 $ touch Voting.sol
 ```
@@ -71,55 +70,7 @@ contract Voting {
   }
 }
 ```
-
-### 4. _start the testrpc_ and leave it running in a terminal window
-```
-$ node_modules/.bin/testrpc
-```
-
-### 5. on another window - open the node console and _initialize the solc and web3 objects_:
-  ```
-  $ node
-  ```
-  ```
-  Web3 = require('web3')
-  web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
-  ```
-  __Is it running?__ - make sure the web3 object is initailized and communicating with the blockchain:
-  ```
-  > web3.eth.accounts
-
-  ['0x9c02f5c68e02390a3ab81f63341edc1ba5dbb39e',
-  '0x7d920be073e92a590dc47e4ccea2f28db3f218cc',
-  '0xf8a9c7c65c4d1c0c21b06c06ee5da80bd8f074a9',
-  '0x9d8ee8c3d4f8b1e08803da274bdaff80c2204fc6',
-  '0x26bb5d139aa7bdb1380af0e1e8f98147ef4c406a',
-  '0x622e557aad13c36459fac83240f25ae91882127c',
-  '0xbf8b1630d5640e272f33653e83092ce33d302fd2',
-  '0xe37a3157cb3081ea7a96ba9f9e942c72cf7ad87b',
-  '0x175dae81345f36775db285d368f0b1d49f61b2f8',
-  '0xc26bda5f3370bdd46e7c84bdb909aead4d8f35f3']
-  ```
-  __[Error]__ If the response above is something like ` Error: Invalid JSON RPC response: undefined ` then make sure the testrpc is running on another terminal window (step 5)
-
-### 6. Compile! - load all the code to a string variable and compile it:
-  ```
-  code = fs.readFileSync('Voting.sol').toString()
-  solc = require('solc')
-  compiledCode = solc.compile(code)
-  ```
-
-### 7. Deploy!
-```
-abiDefinition = JSON.parse(compiledCode.contracts[':Voting'].interface)
-VotingContract = web3.eth.contract(abiDefinition)
-byteCode = compiledCode.contracts[':Voting'].bytecode
-deployedContract = VotingContract.new(['Rama','Nick','Jose'],{data: byteCode, from: web3.eth.accounts[0], gas: 4700000})
-contractInstance = VotingContract.at(deployedContract.address)
-```
-## How to interact with the contract
-
-### 1. Create an ` index.html ` and copy the following code:
+### 3. Create an ` index.html ` and copy the following code:
 
 ```html
 <!DOCTYPE html>
@@ -164,9 +115,7 @@ contractInstance = VotingContract.at(deployedContract.address)
 </html>
 ```
 
-### 2. Create a file ` index.js `
-
-__Important__ - make the changes on the commented line!
+### 4. Create a file ` index.js `
 
 ```javascript
 web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
@@ -194,11 +143,66 @@ $(document).ready(function() {
   }
 });
 ```
-### 3. open ` index.html ` in a browser and vote.
+
+## Testing Locally
+
+### 1. _install web3js_ (this specific version) _and the Solidity compiler_:
+```
+$ npm install ethereumjs-testrpc web3@0.20.1
+$ npm install solc
+```
+
+### 2. _start the testrpc_ and leave it running in a terminal window
+```
+$ node_modules/.bin/testrpc
+```
+
+### 3. on another window - open the node console and _initialize the solc and web3 objects_:
+  ```
+  $ node
+  ```
+  ```
+  Web3 = require('web3')
+  web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+  ```
+  __Is it running?__ - make sure the web3 object is initailized and communicating with the blockchain:
+  ```
+  > web3.eth.accounts
+
+  ['0x9c02f5c68e02390a3ab81f63341edc1ba5dbb39e',
+  '0x7d920be073e92a590dc47e4ccea2f28db3f218cc',
+  '0xf8a9c7c65c4d1c0c21b06c06ee5da80bd8f074a9',
+  '0x9d8ee8c3d4f8b1e08803da274bdaff80c2204fc6',
+  '0x26bb5d139aa7bdb1380af0e1e8f98147ef4c406a',
+  '0x622e557aad13c36459fac83240f25ae91882127c',
+  '0xbf8b1630d5640e272f33653e83092ce33d302fd2',
+  '0xe37a3157cb3081ea7a96ba9f9e942c72cf7ad87b',
+  '0x175dae81345f36775db285d368f0b1d49f61b2f8',
+  '0xc26bda5f3370bdd46e7c84bdb909aead4d8f35f3']
+  ```
+  __[Error]__ If the response above is something like ` Error: Invalid JSON RPC response: undefined ` then make sure the testrpc is running on another terminal window (step 5)
+
+### 4. Compile! - load all the code to a string variable and compile it:
+  ```
+  code = fs.readFileSync('Voting.sol').toString()
+  solc = require('solc')
+  compiledCode = solc.compile(code)
+  ```
+
+### 5. Deploy!
+```
+abiDefinition = JSON.parse(compiledCode.contracts[':Voting'].interface)
+VotingContract = web3.eth.contract(abiDefinition)
+byteCode = compiledCode.contracts[':Voting'].bytecode
+deployedContract = VotingContract.new(['Rama','Nick','Jose'],{data: byteCode, from: web3.eth.accounts[0], gas: 4700000})
+contractInstance = VotingContract.at(deployedContract.address)
+```
+
+### 6. open ` index.html ` in a browser and vote - __Important:__ go to ` index.js ` and make the changes on the commented line!
 
 If it doesn's work I'm sorry, I did my best. Go on Goolge, Stack Overflow, you know the drill...
 
-## Cheatsheet
+#### Interacting with the contract on the terminal
 
 __Get total__ votes:
 ```
@@ -209,3 +213,7 @@ __Vote for__ a Rama (this returns a tx hash):
 ```
 contractInstance.voteForCandidate('Rama', {from: web3.eth.accounts[0]})
 ```
+
+## Deploying to the Ethereum Testnet
+
+(to be continued)
