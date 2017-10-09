@@ -9,6 +9,7 @@ https://medium.com/@mvmurthy/full-stack-hello-world-voting-ethereum-dapp-tutoria
 * [testing locally](https://github.com/diogofgr/dapp/blob/master/README.md#testing-locally)
 * [deploying to the ethereum testnet](https://github.com/diogofgr/dapp/blob/master/README.md#deploying-to-the-ethereum-testnet)
 
+---
 ## Creating a Smart Contract
 
 ### 1. make a folder for you new app and _start a node project_:
@@ -144,6 +145,7 @@ $(document).ready(function() {
 });
 ```
 
+---
 ## Testing Locally
 
 ### 1. _install web3js_ (this specific version) _and the Solidity compiler_:
@@ -214,6 +216,7 @@ __Vote for__ a Rama (this returns a tx hash):
 contractInstance.voteForCandidate('Rama', {from: web3.eth.accounts[0]})
 ```
 
+---
 ## Deploying to the Ethereum Testnet
 
 (to be continued)
