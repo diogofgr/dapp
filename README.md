@@ -1,7 +1,7 @@
 # Tutorial: Running your first dApp
 
 This is a stripped down version of what [@maheshmurthy](https://github.com/maheshmurthy)
-wrote on this medium article:  
+wrote on this medium article:
 https://medium.com/@mvmurthy/full-stack-hello-world-voting-ethereum-dapp-tutorial-part-1-40d2d0d807c2
 
 ## How to run a smart contract on a test blockchain
@@ -80,8 +80,10 @@ $ node_modules/.bin/testrpc
 ### 5. on another window - open the node console and _initialize the solc and web3 objects_:
   ```
   $ node
-  > Web3 = require('web3')
-  > web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+  ```
+  ```
+  Web3 = require('web3')
+  web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
   ```
   __Is it running?__ - make sure the web3 object is initailized and communicating with the blockchain:
   ```
@@ -102,20 +104,108 @@ $ node_modules/.bin/testrpc
 
 ### 6. Compile! - load all the code to a string variable and compile it:
   ```
-  > code = fs.readFileSync('Voting.sol').toString()
-  > solc = require('solc')
-  > compiledCode = solc.compile(code)
+  code = fs.readFileSync('Voting.sol').toString()
+  solc = require('solc')
+  compiledCode = solc.compile(code)
   ```
 
 ### 7. Deploy!
 ```
-> abiDefinition = JSON.parse(compiledCode.contracts[':Voting'].interface)
-> VotingContract = web3.eth.contract(abiDefinition)
-> byteCode = compiledCode.contracts[':Voting'].bytecode
-> deployedContract = VotingContract.new(['Rama','Nick','Jose'],{data: byteCode, from: web3.eth.accounts[0], gas: 4700000})
-> deployedContract.address
-> contractInstance = VotingContract.at(deployedContract.address)
+abiDefinition = JSON.parse(compiledCode.contracts[':Voting'].interface)
+VotingContract = web3.eth.contract(abiDefinition)
+byteCode = compiledCode.contracts[':Voting'].bytecode
+deployedContract = VotingContract.new(['Rama','Nick','Jose'],{data: byteCode, from: web3.eth.accounts[0], gas: 4700000})
+contractInstance = VotingContract.at(deployedContract.address)
 ```
 ## How to interact with the contract
 
-(to be continued)
+### 1. Create an ` index.html ` and copy the following code:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Hello World DApp</title>
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+  <link href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' rel='stylesheet' type='text/css'>
+</head>
+<body class="container">
+  <h1>A Simple Hello World Voting Application</h1>
+  <div class="table-responsive">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Candidate</th>
+          <th>Votes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Rama</td>
+          <td id="candidate-1"></td>
+        </tr>
+        <tr>
+          <td>Nick</td>
+          <td id="candidate-2"></td>
+        </tr>
+        <tr>
+          <td>Jose</td>
+          <td id="candidate-3"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <input type="text" id="candidate" />
+  <a href="#" onclick="voteForCandidate()" class="btn btn-primary">Vote</a>
+</body>
+<script src="https://cdn.rawgit.com/ethereum/web3.js/develop/dist/web3.js"></script>
+<script src="https://code.jquery.com/jquery-3.1.1.slim.min.js"></script>
+<script src="./index.js"></script>
+</html>
+```
+
+### 2. Create a file ` index.js `
+
+__Important__ - make the changes on the commented line!
+
+```javascript
+web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+abi = JSON.parse('[{"constant":false,"inputs":[{"name":"candidate","type":"bytes32"}],"name":"totalVotesFor","outputs":[{"name":"","type":"uint8"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"candidate","type":"bytes32"}],"name":"validCandidate","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function"},{"constant":true,"inputs":[{"name":"","type":"bytes32"}],"name":"votesReceived","outputs":[{"name":"","type":"uint8"}],"payable":false,"type":"function"},{"constant":true,"inputs":[{"name":"x","type":"bytes32"}],"name":"bytes32ToString","outputs":[{"name":"","type":"string"}],"payable":false,"type":"function"},{"constant":true,"inputs":[{"name":"","type":"uint256"}],"name":"candidateList","outputs":[{"name":"","type":"bytes32"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"candidate","type":"bytes32"}],"name":"voteForCandidate","outputs":[],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"contractOwner","outputs":[{"name":"","type":"address"}],"payable":false,"type":"function"},{"inputs":[{"name":"candidateNames","type":"bytes32[]"}],"payable":false,"type":"constructor"}]')
+VotingContract = web3.eth.contract(abi);
+
+// In your nodejs console, execute contractInstance.address to get the address at which the contract is deployed and change the line below to use your deployed address
+contractInstance = VotingContract.at('0x2a9c1d265d06d47e8f7b00ffa987c9185aecf672');
+candidates = {"Rama": "candidate-1", "Nick": "candidate-2", "Jose": "candidate-3"}
+
+function voteForCandidate() {
+  candidateName = $("#candidate").val();
+  contractInstance.voteForCandidate(candidateName, {from: web3.eth.accounts[0]}, function() {
+    let div_id = candidates[candidateName];
+    $("#" + div_id).html(contractInstance.totalVotesFor.call(candidateName).toString());
+  });
+}
+
+$(document).ready(function() {
+  candidateNames = Object.keys(candidates);
+  for (var i = 0; i < candidateNames.length; i++) {
+    let name = candidateNames[i];
+    let val = contractInstance.totalVotesFor.call(name).toString()
+    $("#" + candidates[name]).html(val);
+  }
+});
+```
+### 3. open ` index.html ` in a browser and vote.
+
+If it doesn's work I'm sorry, I did my best. Go on Goolge, Stack Overflow, you know the drill...
+
+## Cheatsheet
+
+__Get total__ votes:
+```
+contractInstance.totalVotesFor.call('Rama').toLocaleString()
+```
+
+__Vote for__ a Rama (this returns a tx hash):
+```
+contractInstance.voteForCandidate('Rama', {from: web3.eth.accounts[0]})
+```
